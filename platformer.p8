@@ -62,6 +62,7 @@ vy=0,
 spd=0.7,
 grounded=false,
 walls={},
+dasht=0,
 regs={to_draw3,to_update}
 ]],{
   update=update_player,
@@ -70,14 +71,28 @@ regs={to_draw3,to_update}
 end
 
 function update_player(p)
+ p.dasht=max(0,p.dasht-1)
+ if p.dasht%2==1 then
+  new_particle(p.x+4,p.y+4,rnd(8)+7,0,0,rnd(2)+2)
+ end
+ -- movement
  if btn(0) then
   p.vx-=p.spd
+  p.flp=true
  end
  if btn(1) then
   p.vx+=p.spd
+  p.flp=false
  end
  if btn(2) and p.grounded then
   p.vy-=p.spd*13
+ end
+ if btn(5) and p.dasht==0 then
+  p.vx+=(p.flp and -1 or 1)*15*p.spd
+  p.dasht=30
+  for i=0,9 do
+   new_particle(p.x+4,p.y+4,rnd(8)+7)
+  end
  end
  update_physics(p)
 end
@@ -89,7 +104,7 @@ end
 -- physics
 
 function update_physics(c,moved)
- c.vx=mid(-6,6,c.vx*0.9)
+ c.vx=mid(-8,8,c.vx*0.9)
  c.vy=mid(-15,15,c.vy*0.9)
  local sx=c.x
  local xoffset=0
@@ -119,6 +134,34 @@ function update_physics(c,moved)
 			c.vy=0
 		end
 	end
+end
+
+-- paticles
+
+function new_particle(x,y,cl,vx,vy,r)
+ return def([[
+regs={to_draw2}
+]],{
+  draw=draw_particle,
+  x=x,
+  y=y,
+  vx=vx or (rnd(2)-1),
+  vy=vy or (rnd(2)-1),
+  r=r or (rnd(4)+2),
+  cl=cl or rnd(16)
+ })
+end
+
+function draw_particle(p)
+ p.x+=p.vx
+ p.y+=p.vy
+ p.vx*=0.95
+ p.vy*=0.95
+ p.r-=0.1
+ circfill(p.x,p.y,p.r,p.cl)
+ if p.r<=0 then
+  deregister(p)
+ end
 end
 
 -- animation
