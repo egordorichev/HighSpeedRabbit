@@ -1,13 +1,13 @@
 pico-8 cartridge // http://www.pico-8.com
 version 9
 __lua__
--- platformer
+-- demon bunny
 -- by @cosme12
 -- and @egordorichev
 music(0)
 -- sfx layout
 -- 06 - pickup
-cartdata("pltf1")
+cartdata("demon_bunny1")
 -- data layout
 -- 00 - last checkpoint id
 -- unused
@@ -18,9 +18,10 @@ for i=0,15 do
 end
 
 function _init()
+ cls()
  allc()
  t,shx,shy,cx,cy=0,0,0,0,0
- menu=false -- ”ˆŽ“„”ˆŽ“ï¿½ï¿½ï¿½ï¿½ï¿½
+ menu=true -- ”ˆŽ“„”ˆŽ“ï¿½ï¿½ï¿½ï¿½ï¿½
  objs=parse[[
 to_update={},
 collidable={}
@@ -66,11 +67,26 @@ collidable={}
 end
 
 t=0
-
 function _update()
  t+=0.01
  if menu then
-  -- update menu
+  if btn(5) or btn(4) then
+   for i=0,100,4 do
+	   t+=0.01
+	   _draw()
+	   circfill(64,64,i,1)
+	   flip()
+	  end
+	  for i=0,30 do
+	   flip()
+	  end
+	  menu=false
+	  for i=100,0,-4 do
+	   _draw()
+	   circfill(64,64,i,1)
+	   flip()
+	  end
+  end
   return
  end
  
@@ -87,12 +103,25 @@ function _update()
  end
 end
 
+function sqr(a) return a*a end
+local mp={0,1}
+local mp2={0,8}
+
 function _draw()
- cls(0)
  if menu then
-  -- draw menu
+  for i=0,399 do
+   local x,y=rnd(128),rnd(128)
+   local d=sqrt(sqr(x-64)+sqr(y-64))
+   local id=flr(d/16-t*4)%#mp+1
+   circ(x,y,1,rnd()<0.5 and mp[id] or mp2[id])
+  end
+  coprint("demon bunny",32)
+  coprint("by @cosme12",86)
+  coprint("and @egordorichev",96)
+  if(t%0.5<0.25) coprint("press — ",106)
   return
  end
+ cls(15)
  camera(cx+shx,cy+shy)
  -- draw game
  map()
@@ -600,7 +629,11 @@ function oprint(s,x,y,c)
  print(s,x,y-1,15)
  print(s,x,y+1,15)
  allc()
- print(s,x,y,c)
+ print(s,x,y,c or 1)
+end
+
+function coprint(s,y,c)
+ oprint(s,64-#s*2,y,c)
 end
 __gfx__
 000800000100001000110110000000000000000000000000ffffffffffffffffffffffff00000000000000000000000000000000000000000000000000000000
