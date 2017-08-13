@@ -22,6 +22,7 @@ end
 function _init()
  cls()
  allc()
+ lx,ly=0,0
  t,shx,shy,cx,cy=0,0,0,0,0
  menu=false -- ”ˆŽ“„”ˆŽ“ï¿½ï¿½ï¿½ï¿½ï¿½
  objs=parse[[
@@ -72,6 +73,8 @@ collidable={}
 end
 
 function switch_world(w)
+ lx=flr(player.x/128)*16
+ ly=flr(player.y/128)*16
  if w==2 then
   world=2
   --palette[8]=0
@@ -185,6 +188,24 @@ function _draw()
   end
  end
  spr(17,stat(32),stat(33))
+ if player.dasht==30 then
+  switch_world(world==1 and 2 or 1)
+  player.dasht=29
+  local nx=cx/8
+  local ny=cy/8
+  for y=ny,ny+14 do
+   for x=nx,nx+15 do
+    local t=mget(x,y)
+    rectfill((x-nx)*8,(y-ny)*8,(x-nx)*8+7,(y-ny)*8+7,15)
+    if(t>0) spr(t,(x-nx)*8,(y-ny)*8)
+   end
+   camera(cx+shx,cy+shy)
+   draw_objects()
+   camera()
+   line(0,118,127,118,15)
+   flip()
+  end
+ end
 end
 
 -- 
@@ -241,8 +262,7 @@ function update_player(p)
 	  p.dasht=30
 	  p.vx=0
 	  p.vy=0
-	  switch_world(world==1 and 2 or 1)
- end
+	 end
  end
 
  if abs(p.vx)+abs(p.vy)<0.3 then
